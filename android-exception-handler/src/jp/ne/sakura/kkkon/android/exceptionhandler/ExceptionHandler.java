@@ -42,7 +42,7 @@ import java.util.Map;
 public class ExceptionHandler
 {
     private static final String TAG = "kk";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static File fileBugReport;
 
