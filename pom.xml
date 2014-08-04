@@ -7,7 +7,7 @@
 
     <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
     <artifactId>android-exception-handler-pom</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Android Exception Handler POM</name>
