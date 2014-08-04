@@ -144,20 +144,15 @@
 
 
     <distributionManagement>
-        <!--
         <repository>
             <id>release-kkkon.github.io</id>
             <name>Android Exception Handler Maven Release Repository</name>
             <url>http://kkkon.github.io/android-exception-handler/maven/releases</url>
         </repository>
-        -->
         <site>
             <id>kkkon.github.io</id>
             <name>Android Exception Handler Maven Site</name>
             <url>http://kkkon.github.io/android-exception-handler</url>
-            <!--
-            Failed to execute goal org.apache.maven.plugins:maven-site-plugin:3.3:stage (default-cli) on project
-            -->
         </site>
     </distributionManagement>
 
