@@ -46,6 +46,10 @@
         <maven.compiler.target>1.5</maven.compiler.target>
         
         <android.sdk.path>${env.ANDROID_HOME}</android.sdk.path>
+
+        <dryRun>true</dryRun>
+        <github.site.dryRun>true</github.site.dryRun>
+        <github.site.skip>true</github.site.skip> <!-- over 0.9 -->
         <ignoreSnapshots>true</ignoreSnapshots>
     </properties>
 
