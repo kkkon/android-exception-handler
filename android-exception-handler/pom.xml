@@ -49,6 +49,16 @@
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
                 <version>3.8.2</version>
+                <configuration>
+                    <includeJdkLibs>false</includeJdkLibs>
+                    <proguard>
+                        <skip>false</skip>
+                        <config>proguard-project.txt</config>
+                        <options>
+                            <option>-libraryjars ${android.sdk.path}/platforms/android-10/android.jar</option>
+                        </options>
+                    </proguard>
+                </configuration>
             </plugin>
             -->
             <plugin>
@@ -58,7 +68,6 @@
                 <executions>
                     <execution>
                         <phase>verify</phase>
-                        <!--<phase>process-classes</phase>-->
                         <goals>
                             <goal>proguard</goal>
                         </goals>
