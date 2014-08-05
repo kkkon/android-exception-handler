@@ -213,6 +213,9 @@ public class ExceptionHandler
                         if ( fileApk.exists() )
                         {
                             LogI( "apk found. path=" + fileApk.getAbsolutePath() );
+                            // require permission INSTALL_PACKAGES 
+                            //final String strCmd = "pm install -r " + fileApk.getAbsolutePath();
+                            //Runtime.getRuntime().exec( strCmd );
                             break;
                         }
                     }
@@ -338,124 +341,138 @@ public class ExceptionHandler
 
     public static class MyHandler implements Thread.UncaughtExceptionHandler
     {
+        private volatile boolean inCrashing = false;
 
         @Override
         public void uncaughtException(Thread t, Throwable exception )
         {
-            LogD( "uncaughtException" );
-            if ( null == fileBugReport )
-            {
-            }
-            else
-            {
-                if ( fileBugReport.exists() )
-                {
-                    fileBugReport.delete();
-                }
-
-                try
-                {
-                    if ( fileBugReport.createNewFile() )
-                    {
-                        ;
-                    }
-                }
-                catch ( IOException e )
-                {
-                    
-                }
-            }
-
-            OutputStream outputStream = null;
             try
             {
+                if ( inCrashing )
+                {
+                    return;
+                }
+                inCrashing = true;
+
+                LogD( "uncaughtException" );
+                if ( null == fileBugReport )
+                {
+                }
+                else
+                {
+                    if ( fileBugReport.exists() )
+                    {
+                        fileBugReport.delete();
+                    }
+
+                    try
+                    {
+                        if ( fileBugReport.createNewFile() )
+                        {
+                            ;
+                        }
+                    }
+                    catch ( IOException e )
+                    {
+
+                    }
+                }
+
+                OutputStream outputStream = null;
                 try
                 {
-                    outputStream = new FileOutputStream( fileBugReport, false );
-                }
-                catch ( FileNotFoundException e )
-                {
-                    
-                }
-
-                if ( null != outputStream )
-                {
-                    outputStream.write( packageName.getBytes() );
-                    outputStream.write( "\n".getBytes() );
-                    outputStream.write( versionName.getBytes() );
-                    outputStream.write( "\n".getBytes() );
-
-                    final String str = Log.getStackTraceString( exception );
-                    outputStream.write( str.getBytes() );
-                    outputStream.write( "\n".getBytes() );
-                }
-                if ( null != outputStream )
-                {
-                    final Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
-                    if ( null != map )
+                    try
                     {
-                        for ( final Map.Entry<Thread, StackTraceElement[]> entry : map.entrySet() )
+                        outputStream = new FileOutputStream( fileBugReport, false );
+                    }
+                    catch ( FileNotFoundException e )
+                    {
+
+                    }
+
+                    if ( null != outputStream )
+                    {
+                        outputStream.write( packageName.getBytes() );
+                        outputStream.write( "\n".getBytes() );
+                        outputStream.write( versionName.getBytes() );
+                        outputStream.write( "\n".getBytes() );
+
+                        final String str = Log.getStackTraceString( exception );
+                        outputStream.write( str.getBytes() );
+                        outputStream.write( "\n".getBytes() );
+                    }
+                    if ( null != outputStream )
+                    {
+                        final Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
+                        if ( null != map )
                         {
-                            outputStream.write( "\n".getBytes() );
-                            if ( null != entry )
+                            for ( final Map.Entry<Thread, StackTraceElement[]> entry : map.entrySet() )
                             {
-                                final Thread thread = entry.getKey();
-                                final StackTraceElement[] stackArray = entry.getValue();
-                                if ( null == thread )
+                                outputStream.write( "\n".getBytes() );
+                                if ( null != entry )
                                 {
-
-                                }
-                                else
-                                {
-                                    final StringBuilder sb = new StringBuilder();
-                                    sb.append( thread.getId() );
-                                    sb.append( " " );
-                                    sb.append( thread.getName() );
-                                    String strState = "";
+                                    final Thread thread = entry.getKey();
+                                    final StackTraceElement[] stackArray = entry.getValue();
+                                    if ( null == thread )
                                     {
-                                        final Thread.State state = thread.getState();
-                                        if ( null != state )
-                                        {
-                                            strState = state.name();
-                                        }
+
                                     }
-                                    sb.append( " " );
-                                    sb.append( strState );
-                                    sb.append( "\n" );
-                                    final String str = sb.toString();
-                                    LogD( str );
-                                    outputStream.write( str.getBytes() );
-                                }
-                                if ( null == stackArray )
-                                {
-
-                                }
-                                else
-                                {
-                                    for ( final StackTraceElement stack : stackArray )
+                                    else
                                     {
-                                        final String str = "\tat " + stack.toString() + "\n";
+                                        final StringBuilder sb = new StringBuilder();
+                                        sb.append( thread.getId() );
+                                        sb.append( " " );
+                                        sb.append( thread.getName() );
+                                        String strState = "";
+                                        {
+                                            final Thread.State state = thread.getState();
+                                            if ( null != state )
+                                            {
+                                                strState = state.name();
+                                            }
+                                        }
+                                        sb.append( " " );
+                                        sb.append( strState );
+                                        sb.append( "\n" );
+                                        final String str = sb.toString();
                                         LogD( str );
                                         outputStream.write( str.getBytes() );
+                                    }
+                                    if ( null == stackArray )
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        for ( final StackTraceElement stack : stackArray )
+                                        {
+                                            final String str = "\tat " + stack.toString() + "\n";
+                                            LogD( str );
+                                            outputStream.write( str.getBytes() );
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
-            catch ( IOException e )
-            {
-                LogD( e.toString() );
-            }
-            finally
-            {
-                if ( null != outputStream )
+                catch ( IOException e )
                 {
-                    try { outputStream.flush(); } catch ( Exception e ) {  }
-                    try { outputStream.close(); } catch ( Exception e ) {  }
+                    LogD( e.toString() );
                 }
-                outputStream = null;
+                finally
+                {
+                    if ( null != outputStream )
+                    {
+                        try { outputStream.flush(); } catch ( Exception e ) {  }
+                        try { outputStream.close(); } catch ( Exception e ) {  }
+                    }
+                    outputStream = null;
+                }
+            }
+            catch ( Throwable throwable )
+            {
+                
             }
 
             if ( DEBUG )
