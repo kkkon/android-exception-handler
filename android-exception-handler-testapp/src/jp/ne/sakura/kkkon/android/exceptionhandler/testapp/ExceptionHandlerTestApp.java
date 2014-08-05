@@ -25,6 +25,8 @@ package jp.ne.sakura.kkkon.android.exceptionhandler.testapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,6 +46,8 @@ import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
  */
 public class ExceptionHandlerTestApp extends Activity
 {
+    public static final String TAG = "appKK";
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -122,6 +126,64 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn1 );
+
+        Button btn2 = new Button( this );
+        btn2.setText( "reinstall apk" );
+        btn2.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                boolean foundApk = false;
+                {
+                    final String apkPath = context.getPackageCodePath(); // API8
+                    Log.d( TAG, "PackageCodePath: " + apkPath );
+                    final File fileApk = new File(apkPath);
+                    if ( fileApk.exists() )
+                    {
+                        foundApk = true;
+
+                        Intent promptInstall = new Intent(Intent.ACTION_VIEW);
+                        promptInstall.setDataAndType(Uri.fromFile( fileApk ), "application/vnd.android.package-archive");
+                        promptInstall.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+                        context.startActivity( promptInstall );
+                    }
+                }
+
+                if ( false == foundApk )
+                {
+                    for ( int i = 0; i < 10; ++i )
+                    {
+                        File fileApk = new File("/data/app/" + context.getPackageName() + "-" + i + ".apk" );
+                        Log.d( TAG, "check apk:" + fileApk.getAbsolutePath() );
+                        if ( fileApk.exists() )
+                        {
+                            Log.i( TAG, "apk found. path=" + fileApk.getAbsolutePath() );
+                            /*
+                             * // require parmission
+                            {
+                                final String strCmd = "pm install -r " + fileApk.getAbsolutePath();
+                                try
+                                {
+                                    Runtime.getRuntime().exec( strCmd );
+                                }
+                                catch ( IOException e )
+                                {
+                                    Log.e( TAG, "got exception", e );
+                                }
+                            }
+                            */
+                            Intent promptInstall = new Intent(Intent.ACTION_VIEW);
+                            promptInstall.setDataAndType(Uri.fromFile( fileApk ), "application/vnd.android.package-archive");
+                            promptInstall.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+                            context.startActivity( promptInstall );
+                            break;
+                        }
+                    }
+                }
+            }
+        } );
+        layout.addView( btn2 );
 
         setContentView( layout );
     }
