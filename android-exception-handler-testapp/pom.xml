@@ -69,6 +69,7 @@
             <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
             <artifactId>android-exception-handler</artifactId>
             <version>0.2-SNAPSHOT</version>
+            <!--<type>aar</type>-->
         </dependency>
     </dependencies>
 
