@@ -34,9 +34,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
 
@@ -184,6 +190,79 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn2 );
+
+        Button btn3 = new Button( this );
+        btn3.setText( "check apk" );
+        btn3.setOnClickListener( new View.OnClickListener() {
+            private boolean checkApk( final File fileApk, ZipEntryFilter filter )
+            {
+                boolean result = false;
+
+                if ( fileApk.exists() )
+                {
+                    ZipFile zipFile = null;
+                    try
+                    {
+                        zipFile = new ZipFile( fileApk );
+                        List<ZipEntry> list = new ArrayList<ZipEntry>( zipFile.size() );
+                        for ( Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); )
+                        {
+                            ZipEntry ent = e.nextElement();
+                            Log.d( TAG, ent.getName() );
+                            final boolean accept = filter.accept( ent );
+                            if ( accept )
+                            {
+                                list.add( ent );
+                            }
+                        }
+                    }
+                    catch ( IOException e )
+                    {
+                        Log.d( TAG, "got exception", e );
+                    }
+                    finally
+                    {
+                        if ( null != zipFile )
+                        {
+                            try { zipFile.close(); } catch ( Exception e ) { }
+                        }
+                    }
+                }
+
+                return result;
+            }
+
+            @Override
+            public void onClick(View view)
+            {
+                boolean foundApk = false;
+                {
+                    final String apkPath = context.getPackageCodePath(); // API8
+                    Log.d( TAG, "PackageCodePath: " + apkPath );
+                    final File fileApk = new File(apkPath);
+                    this.checkApk( fileApk, new ZipEntryFilter() {
+                        @Override
+                        public boolean accept( ZipEntry entry )
+                        {
+                            if ( entry.isDirectory() )
+                            {
+                                return false;
+                            }
+
+                            final String filename = entry.getName();
+                            if ( filename.startsWith("lib/") )
+                            {
+                                return true;
+                            }
+
+                            return false;
+                        }
+                    } );
+                }
+
+            }
+        } );
+        layout.addView( btn3 );
 
         setContentView( layout );
     }
