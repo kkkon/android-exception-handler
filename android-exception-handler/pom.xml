@@ -80,6 +80,20 @@
                     </options>
                 </configuration>
             </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.4</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <skipDeploy>true</skipDeploy>
+                    <siteDirectory>${basedir}/site</siteDirectory>
+                    <outputDirectory>${project.reporting.outputDirectory}//site/${project.artifactId}</outputDirectory>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

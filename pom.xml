@@ -93,6 +93,8 @@
                 <inherited>true</inherited>
                 <configuration>
                     <skipDeploy>true</skipDeploy>
+                    <siteDirectory>${basedir}/site</siteDirectory>
+                    <outputDirectory>${project.reporting.outputDirectory}/site</outputDirectory>
                 </configuration>
             </plugin>
 
