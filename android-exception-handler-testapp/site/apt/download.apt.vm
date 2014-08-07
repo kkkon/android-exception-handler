@@ -36,8 +36,8 @@ Browse Files:
 
 Download:
 
-  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-${project.version}.apk}android-exception-handler-testapp-${project.version}.apk}}
+  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-testapp-${project.version}.apk}android-exception-handler-testapp-${project.version}.apk}}
 
-  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-${project.version}.jar}android-exception-handler-testapp-${project.version}.jar}}
+  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-testapp-${project.version}.jar}android-exception-handler-testapp-${project.version}.jar}}
 
-  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-${project.version}-sources.jar}android-exception-handler-testapp-${project.version}-sources.jar}}
+  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-testapp/${project.version}/android-exception-handler-testapp-${project.version}-sources.jar}android-exception-handler-testapp-${project.version}-sources.jar}}

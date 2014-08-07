@@ -36,6 +36,5 @@ Browse Files:
 
 Download:
 
-  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-pom/${project.version}/android-exception-handler-pom-${project.version}.jar}android-exception-handler-pom-${project.version}.jar}}
+  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-pom/${project.version}/android-exception-handler-pom-${project.version}.pom}android-exception-handler-pom-${project.version}.pom}}
 
-  {{{http://kkkon.github.io/android-exception-handler/maven/releases/jp/ne/sakura/kkkon/android/exceptionhandler/android-exception-handler-pom/${project.version}/android-exception-handler-pom-${project.version}-sources.jar}android-exception-handler-pom-${project.version}-sources.jar}}
