@@ -26,8 +26,10 @@ package jp.ne.sakura.kkkon.android.exceptionhandler.testapp;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -263,6 +265,86 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn3 );
+
+        Button btn4 = new Button( this );
+        btn4.setText( "print dir and path" );
+        btn4.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                {
+                    final File file = context.getCacheDir();
+                    Log.d( TAG, "Ctx.CacheDir=" + file.getAbsoluteFile() );
+                }
+                {
+                    final File file = context.getExternalCacheDir(); // API 8
+                    Log.d( TAG, "Ctx.ExternalCacheDir=" + file.getAbsolutePath() );
+                }
+                {
+                    final File file = context.getFilesDir();
+                    Log.d( TAG, "Ctx.FilesDir=" + file.getAbsolutePath() );
+                }
+                {
+                    final String value = context.getPackageResourcePath();
+                    Log.d( TAG, "Ctx.PackageResourcePath=" + value );
+                }
+                {
+                    final String[] files = context.fileList();
+                    if ( null == files )
+                    {
+                        Log.d( TAG, "Ctx.fileList=" + files );
+                    }
+                    else
+                    {
+                        for ( final String filename : files )
+                        {
+                            Log.d( TAG, "Ctx.fileList=" + filename );
+                        }
+                    }
+                }
+
+
+                {
+                    final File file = Environment.getDataDirectory();
+                    Log.d( TAG, "Env.DataDirectory=" + file.getAbsolutePath() );
+                }
+                {
+                    final File file = Environment.getDownloadCacheDirectory();
+                    Log.d( TAG, "Env.DownloadCacheDirectory=" + file.getAbsolutePath() );
+                }
+                {
+                    final File file = Environment.getExternalStorageDirectory();
+                    Log.d( TAG, "Env.ExternalStorageDirectory=" + file.getAbsolutePath() );
+                }
+                {
+                    final File file = Environment.getRootDirectory();
+                    Log.d( TAG, "Env.RootDirectory=" + file.getAbsolutePath() );
+                }
+                {
+                    final ApplicationInfo appInfo = context.getApplicationInfo();
+                    Log.d( TAG, "AppInfo.dataDir=" + appInfo.dataDir );
+                    Log.d( TAG, "AppInfo.nativeLibraryDir=" + appInfo.nativeLibraryDir ); // API 9
+                    Log.d( TAG, "AppInfo.publicSourceDir=" + appInfo.publicSourceDir );
+                    {
+                        final String[] sharedLibraryFiles = appInfo.sharedLibraryFiles;
+                        if ( null == sharedLibraryFiles )
+                        {
+                            Log.d( TAG, "AppInfo.sharedLibraryFiles=" + sharedLibraryFiles );
+                        }
+                        else
+                        {
+                            for ( final String fileName : sharedLibraryFiles )
+                            {
+                                Log.d( TAG, "AppInfo.sharedLibraryFiles=" + fileName );
+                            }
+                        }
+                    }
+                    Log.d( TAG, "AppInfo.sourceDir=" + appInfo.sourceDir );
+                }
+            }
+        } );
+        layout.addView( btn4 );
 
         setContentView( layout );
     }
