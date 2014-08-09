@@ -548,7 +548,7 @@ public class ExceptionHandlerTestApp extends Activity
         layout.addView( btn6 );
 
         Button btn7 = new Button( this );
-        btn7.setText( "upload http" );
+        btn7.setText( "upload http thread" );
         btn7.setOnClickListener( new View.OnClickListener() {
 
             @Override
@@ -559,19 +559,36 @@ public class ExceptionHandlerTestApp extends Activity
 
                 //$(BRAND)/$(PRODUCT)/$(DEVICE)/$(BOARD):$(VERSION.RELEASE)/$(ID)/$(VERSION.INCREMENTAL):$(TYPE)/$(TAGS)
                 Log.d( TAG, "fng=" + Build.FINGERPRINT );
-                List<NameValuePair> list = new ArrayList<NameValuePair>(16);
+                final List<NameValuePair> list = new ArrayList<NameValuePair>(16);
                 list.add( new BasicNameValuePair( "fng", Build.FINGERPRINT ) );
+
+                Thread thread = new Thread( new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try
+                        {
+                            HttpPost    httpPost = new HttpPost( "http://kkkon.sakura.ne.jp/android/bug" );
+                            httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
+                            DefaultHttpClient   httpClient = new DefaultHttpClient();
+                            // <uses-permission android:name="android.permission.INTERNET"/>
+                            // got android.os.NetworkOnMainThreadException, run at UI Main Thread
+                            HttpResponse response = httpClient.execute( httpPost );
+                            Log.d( TAG, "response=" + response.getStatusLine().getStatusCode() );
+                        }
+                        catch ( Exception e )
+                        {
+                            Log.d( TAG, "got Exception", e );
+                        }
+                    }
+                });
+
+                thread.start();
                 try
                 {
-                    HttpPost    httpPost = new HttpPost( "http://kkkon.sakura.ne.jp/android/bug" );
-                    httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
-                    DefaultHttpClient   httpClient = new DefaultHttpClient();
-                    // <uses-permission android:name="android.permission.INTERNET"/>
-                    // got android.os.NetworkOnMainThreadException, run at UI Main Thread
-                    HttpResponse response = httpClient.execute( httpPost );
-                    Log.d( TAG, "response=" + response.getStatusLine().getStatusCode() );
+                    thread.join();
                 }
-                catch ( Exception e )
+                catch ( InterruptedException e )
                 {
                     Log.d( TAG, "got Exception", e );
                 }
