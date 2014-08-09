@@ -87,12 +87,4 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <site>
-            <id>kkkon.github.io</id>
-            <name>Android Exception Handler Maven Site</name>
-            <url>http://kkkon.github.io/android-exception-handler/${project.artivactId}</url>
-        </site>
-    </distributionManagement>
-
 </project>
