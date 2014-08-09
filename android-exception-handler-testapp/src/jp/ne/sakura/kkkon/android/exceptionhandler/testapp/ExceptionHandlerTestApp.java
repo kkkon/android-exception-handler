@@ -438,6 +438,39 @@ public class ExceptionHandlerTestApp extends Activity
         } );
         layout.addView( btn5 );
 
+        Button btn6 = new Button( this );
+        btn6.setText( "send email" );
+        btn6.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                Intent mailto = new Intent();
+                mailto.setAction( Intent.ACTION_SENDTO );
+                mailto.setType( "message/rfc822" );
+                mailto.setData( Uri.parse("mailto:") );
+                mailto.putExtra( Intent.EXTRA_EMAIL, new String[] { "" } );
+                mailto.putExtra( Intent.EXTRA_SUBJECT, "[BugReport] " + context.getPackageName() );
+                mailto.putExtra( Intent.EXTRA_TEXT, "body text" );
+                //mailto.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+                //context.startActivity( mailto );
+                Intent intent = Intent.createChooser( mailto, "Send Email" );
+                if ( null != intent )
+                {
+                    intent.addFlags( Intent.FLAG_ACTIVITY_NEW_TASK );
+                    try
+                    {
+                        context.startActivity( intent );
+                    }
+                    catch ( android.content.ActivityNotFoundException e )
+                    {
+                        Log.d( TAG, "got Exception", e );
+                    }
+                }
+            }
+        } );
+        layout.addView( btn6 );
+
         setContentView( layout );
     }
 }
