@@ -109,4 +109,14 @@
         -->
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>release-profile</id>
+
+            <properties>
+                <proguard.skip>false</proguard.skip>
+                <android.release>true</android.release>
+            </properties>
+        </profile>
+    </profiles>
 </project>
