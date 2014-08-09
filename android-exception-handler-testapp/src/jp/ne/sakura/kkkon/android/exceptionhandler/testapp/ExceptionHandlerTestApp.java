@@ -40,6 +40,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
 import jp.ne.sakura.kkkon.android.exceptionhandler.SettingsCompat;
@@ -76,6 +78,72 @@ public class ExceptionHandlerTestApp extends Activity
                 File file = new File( fileName );
                 if ( file.exists() )
                 {
+                    Log.d( TAG, file.getAbsolutePath() );
+                    InputStream inStream = null;
+                    ZipOutputStream outStream = null;
+                    try
+                    {
+                        inStream = new FileInputStream( file );
+                        String strFileZip = file.getAbsolutePath();
+                        {
+                            int index = strFileZip.lastIndexOf( '.' );
+                            if ( 0 < index )
+                            {
+                                strFileZip = strFileZip.substring( 0, index );
+                                strFileZip += ".zip";
+                            }
+                        }
+                        Log.d( TAG, strFileZip );
+                        String strFileName = file.getAbsolutePath();
+                        {
+                            int index = strFileName.lastIndexOf( File.separatorChar );
+                            if ( 0 < index )
+                            {
+                                strFileName = strFileName.substring( index+1 );
+                            }
+                        }
+                        Log.d( TAG, strFileName );
+
+                        outStream = new ZipOutputStream( new FileOutputStream(strFileZip) );
+                        byte[] buff = new byte[8124];
+                        {
+                            ZipEntry entry = new ZipEntry( strFileName );
+                            outStream.putNextEntry( entry );
+
+                            int len = 0;
+                            while ( 0 < (len = inStream.read( buff ) ) )
+                            {
+                                outStream.write( buff, 0, len );
+                            }
+                            outStream.closeEntry();
+                        }
+                        outStream.finish();
+                        outStream.flush();
+
+                    }
+                    catch ( IOException e )
+                    {
+                        Log.e( TAG, "got exception", e );
+                    }
+                    finally
+                    {
+                        if ( null != outStream )
+                        {
+                            try { outStream.close(); } catch( Exception e ) { }
+                        }
+                        outStream = null;
+
+                        if ( null != inStream )
+                        {
+                            try { inStream.close(); } catch( Exception e ) { }
+                        }
+                        inStream = null;
+                    }
+                    Log.i( TAG, "zip created" );
+                }
+
+                if ( file.exists() )
+                {
                     // upload or send e-mail
                     InputStream inStream = null;
                     StringBuilder sb = new StringBuilder();
@@ -94,11 +162,11 @@ public class ExceptionHandlerTestApp extends Activity
                         } while( readed >= 0);
 
                         final String str = sb.toString();
-                        Log.i( "appKK", str );
+                        Log.i( TAG, str );
                     }
                     catch ( IOException e )
                     {
-                        Log.e( "appKK", "got exception", e );
+                        Log.e( TAG, "got exception", e );
                     }
                     finally
                     {
