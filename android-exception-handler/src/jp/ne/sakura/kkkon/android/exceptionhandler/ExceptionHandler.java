@@ -309,7 +309,14 @@ public class ExceptionHandler
             if ( null == thread )
             {
                 {
-                    oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+                    final Thread.UncaughtExceptionHandler curHandler = Thread.getDefaultUncaughtExceptionHandler();
+                    if ( curHandler != myHandler )
+                    {
+                        if ( oldHandler != curHandler )
+                        {
+                            oldHandler = curHandler;
+                        }
+                    }
 
                     Thread.setDefaultUncaughtExceptionHandler( myHandler );
                 }
@@ -318,7 +325,14 @@ public class ExceptionHandler
             {
                 synchronized( thread )
                 {
-                    oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+                    final Thread.UncaughtExceptionHandler curHandler = Thread.getDefaultUncaughtExceptionHandler();
+                    if ( curHandler != myHandler )
+                    {
+                        if ( oldHandler != curHandler )
+                        {
+                            oldHandler = curHandler;
+                        }
+                    }
 
                     Thread.setDefaultUncaughtExceptionHandler( myHandler );
                 }
@@ -333,7 +347,7 @@ public class ExceptionHandler
         return result;
     }
 
-    private static Thread.UncaughtExceptionHandler oldHandler;
+    private static Thread.UncaughtExceptionHandler oldHandler = null;
     private static Thread.UncaughtExceptionHandler myHandler = new MyHandler();
 
     private static String packageName;
@@ -486,8 +500,28 @@ public class ExceptionHandler
             }
             else
             {
-                oldHandler.uncaughtException( t, exception );
+                try
+                {
+                    oldHandler.uncaughtException( t, exception );
+                }
+                catch ( Exception e )
+                {
+                    LogD( "got Exception", e );
+                }
+
+                // fail-safe: avoid ANR
+                try
+                {
+                    Runtime.getRuntime().exit( 0 );
+                }
+                catch ( Exception e )
+                {
+                    LogD( "got Exception", e );
+                }
             }
+
+            inCrashing = false;
+
         }
 
     }
