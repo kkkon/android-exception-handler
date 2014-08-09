@@ -24,7 +24,9 @@
 package jp.ne.sakura.kkkon.android.exceptionhandler.testapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
@@ -43,6 +45,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -105,6 +108,45 @@ public class ExceptionHandlerTestApp extends Activity
                         }
                         inStream = null;
                     }
+
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder( this );
+                    final Locale defaultLocale = Locale.getDefault();
+
+                    String title = "";
+                    String message = "";
+                    String positive = "";
+                    String negative = "";
+
+                    boolean needDefaultLang = true;
+                    if ( null != defaultLocale )
+                    {
+                        if ( defaultLocale.equals( Locale.JAPANESE ) || defaultLocale.equals( Locale.JAPAN ) )
+                        {
+                            title = "エラー";
+                            message = "エラーを検出しました。エラー情報を送信しますか？";
+                            positive = "送信";
+                            negative = "キャンセル";
+                            needDefaultLang = false;
+                        }
+                    }
+                    if ( needDefaultLang )
+                    {
+                        title = "ERROR";
+                        message = "Got unexpected error. Do you want to send information of error.";
+                        positive = "Send";
+                        negative = "Cancel";
+                    }
+                    alertDialog.setTitle( title );
+                    alertDialog.setMessage( message );
+                    alertDialog.setPositiveButton( positive, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface di, int i) {
+                            // TODO
+                        }
+                    } );
+                    alertDialog.setNegativeButton( negative, null );
+                    alertDialog.show();
                 }
             }
             ExceptionHandler.clearReport();
