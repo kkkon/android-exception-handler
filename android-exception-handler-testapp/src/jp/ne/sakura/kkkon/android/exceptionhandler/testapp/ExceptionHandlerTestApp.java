@@ -43,6 +43,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -342,6 +344,33 @@ public class ExceptionHandlerTestApp extends Activity
                         }
                     }
                     Log.d( TAG, "AppInfo.sourceDir=" + appInfo.sourceDir );
+                }
+                {
+                    Log.d( TAG, "System.Properties start" );
+                    final Properties properties = System.getProperties();
+                    if ( null != properties )
+                    {
+                        for ( final Object key: properties.keySet() )
+                        {
+                            String value = properties.getProperty( (String)key );
+                            Log.d( TAG, " key=" + key + ",value=" + value );
+                        }
+                    }
+                    Log.d( TAG, "System.Properties end" );
+                }
+                {
+                    Log.d( TAG, "System.getenv start" );
+                    final Map<String,String>  mapEnv = System.getenv();
+                    if ( null != mapEnv )
+                    {
+                        for ( final Map.Entry<String,String> entry : mapEnv.entrySet() )
+                        {
+                            final String key = entry.getKey();
+                            final String value = entry.getValue();
+                            Log.d( TAG, " key=" + key + ",value=" + value );
+                        }
+                    }
+                    Log.d( TAG, "System.getenv end" );
                 }
             }
         } );
