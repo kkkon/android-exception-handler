@@ -8,12 +8,12 @@
     <parent>
         <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
         <artifactId>android-exception-handler-pom</artifactId>
-        <version>0.5</version>
+        <version>0.6-SNAPSHOT</version>
     </parent>
 
     <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
     <artifactId>android-exception-handler-testapp</artifactId>
-    <version>0.5</version>
+    <version>0.6-SNAPSHOT</version>
     <packaging>apk</packaging>
 
     <name>Android Exception Handler Test Application</name>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
             <artifactId>android-exception-handler</artifactId>
-            <version>0.5</version>
+            <version>0.6-SNAPSHOT</version>
             <!--<type>aar</type>-->
         </dependency>
     </dependencies>
