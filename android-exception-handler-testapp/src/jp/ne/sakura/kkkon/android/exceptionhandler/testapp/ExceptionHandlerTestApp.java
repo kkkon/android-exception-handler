@@ -47,6 +47,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
+import jp.ne.sakura.kkkon.android.exceptionhandler.SettingsCompat;
 
 /**
  *
@@ -345,6 +346,26 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn4 );
+
+        Button btn5 = new Button( this );
+        btn5.setText( "check INSTALL_NON_MARKET_APPS" );
+        btn5.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                SettingsCompat.initialize( context );
+                if ( SettingsCompat.isAllowedNonMarketApps() )
+                {
+                    Log.d( TAG, "isAllowdNonMarketApps=true" );
+                }
+                else
+                {
+                    Log.d( TAG, "isAllowdNonMarketApps=false" );
+                }
+            }
+        } );
+        layout.addView( btn5 );
 
         setContentView( layout );
     }
