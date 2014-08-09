@@ -30,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -55,6 +56,13 @@ import java.util.zip.ZipOutputStream;
 
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
 import jp.ne.sakura.kkkon.android.exceptionhandler.SettingsCompat;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 
 /**
  *
@@ -538,6 +546,38 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn6 );
+
+        Button btn7 = new Button( this );
+        btn7.setText( "upload http" );
+        btn7.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                Log.d( TAG, "brd=" + Build.BRAND );
+                Log.d( TAG, "prd=" + Build.PRODUCT );
+
+                //$(BRAND)/$(PRODUCT)/$(DEVICE)/$(BOARD):$(VERSION.RELEASE)/$(ID)/$(VERSION.INCREMENTAL):$(TYPE)/$(TAGS)
+                Log.d( TAG, "fng=" + Build.FINGERPRINT );
+                List<NameValuePair> list = new ArrayList<NameValuePair>(16);
+                list.add( new BasicNameValuePair( "fng", Build.FINGERPRINT ) );
+                try
+                {
+                    HttpPost    httpPost = new HttpPost( "http://kkkon.sakura.ne.jp/android/bug" );
+                    httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
+                    DefaultHttpClient   httpClient = new DefaultHttpClient();
+                    // <uses-permission android:name="android.permission.INTERNET"/>
+                    // got android.os.NetworkOnMainThreadException, run at UI Main Thread
+                    HttpResponse response = httpClient.execute( httpPost );
+                    Log.d( TAG, "response=" + response.getStatusLine().getStatusCode() );
+                }
+                catch ( Exception e )
+                {
+                    Log.d( TAG, "got Exception", e );
+                }
+            }
+        } );
+        layout.addView( btn7 );
 
         setContentView( layout );
     }
