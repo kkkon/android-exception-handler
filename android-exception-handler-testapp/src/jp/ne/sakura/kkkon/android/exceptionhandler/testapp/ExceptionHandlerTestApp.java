@@ -566,7 +566,7 @@ public class ExceptionHandlerTestApp extends Activity
 
                     @Override
                     public void run() {
-                        Log.d( TAG, "upload thread id=" + Thread.currentThread().getId() );
+                        Log.d( TAG, "upload thread tid=" + android.os.Process.myTid() );
                         try
                         {
                             HttpPost    httpPost = new HttpPost( "http://kkkon.sakura.ne.jp/android/bug" );
