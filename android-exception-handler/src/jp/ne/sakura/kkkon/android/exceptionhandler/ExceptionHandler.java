@@ -295,7 +295,7 @@ public class ExceptionHandler
 
     public static boolean registHandler()
     {
-        clearReport();
+        //clearReport();
 
         boolean result = true;
 

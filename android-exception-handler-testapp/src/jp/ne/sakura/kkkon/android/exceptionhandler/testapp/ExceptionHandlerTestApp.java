@@ -55,6 +55,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderMailClient;
+import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderWeb;
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
 import jp.ne.sakura.kkkon.android.exceptionhandler.SettingsCompat;
 import org.apache.http.HttpResponse;
@@ -85,7 +87,25 @@ public class ExceptionHandlerTestApp extends Activity
             if ( ExceptionHandler.needReport() )
             {
                 final String fileName = ExceptionHandler.getBugReportFileAbsolutePath();
-                File file = new File( fileName );
+                final File file = new File( fileName );
+                final File fileZip;
+                {
+                    String strFileZip = file.getAbsolutePath();
+                    {
+                        int index = strFileZip.lastIndexOf( '.' );
+                        if ( 0 < index )
+                        {
+                            strFileZip = strFileZip.substring( 0, index );
+                            strFileZip += ".zip";
+                        }
+                    }
+                    Log.d( TAG, strFileZip );
+                    fileZip = new File( strFileZip );
+                    if ( fileZip.exists() )
+                    {
+                        fileZip.delete();
+                    }
+                }
                 if ( file.exists() )
                 {
                     Log.d( TAG, file.getAbsolutePath() );
@@ -94,16 +114,6 @@ public class ExceptionHandlerTestApp extends Activity
                     try
                     {
                         inStream = new FileInputStream( file );
-                        String strFileZip = file.getAbsolutePath();
-                        {
-                            int index = strFileZip.lastIndexOf( '.' );
-                            if ( 0 < index )
-                            {
-                                strFileZip = strFileZip.substring( 0, index );
-                                strFileZip += ".zip";
-                            }
-                        }
-                        Log.d( TAG, strFileZip );
                         String strFileName = file.getAbsolutePath();
                         {
                             int index = strFileName.lastIndexOf( File.separatorChar );
@@ -114,7 +124,7 @@ public class ExceptionHandlerTestApp extends Activity
                         }
                         Log.d( TAG, strFileName );
 
-                        outStream = new ZipOutputStream( new FileOutputStream(strFileZip) );
+                        outStream = new ZipOutputStream( new FileOutputStream(fileZip) );
                         byte[] buff = new byte[8124];
                         {
                             ZipEntry entry = new ZipEntry( strFileName );
@@ -216,18 +226,30 @@ public class ExceptionHandlerTestApp extends Activity
                     }
                     alertDialog.setTitle( title );
                     alertDialog.setMessage( message );
-                    alertDialog.setPositiveButton( positive, new DialogInterface.OnClickListener() {
+                    alertDialog.setPositiveButton( positive + " mail", new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface di, int i) {
-                            // TODO
+                            DefaultUploaderMailClient.upload( context, file, new String[] { "diverKon+sakura@gmail.com" } );
                         }
                     } );
-                    alertDialog.setNegativeButton( negative, null );
+                    alertDialog.setNeutralButton( positive + " http", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface di, int i) {
+                            DefaultUploaderWeb.upload( ExceptionHandlerTestApp.this, fileZip, "http://kkkon.sakura.ne.jp/android/bug" );
+                        }
+                    } );
+                    alertDialog.setNegativeButton( negative,  new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface di, int i) {
+                            ExceptionHandler.clearReport();
+                        }
+                    } );
                     alertDialog.show();
                 }
             }
-            ExceptionHandler.clearReport();
             ExceptionHandler.registHandler();
         }
 
