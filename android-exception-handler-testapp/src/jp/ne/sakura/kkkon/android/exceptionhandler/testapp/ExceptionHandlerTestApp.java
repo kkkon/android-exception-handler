@@ -587,6 +587,7 @@ public class ExceptionHandlerTestApp extends Activity
                 thread.setName("upload crash");
 
                 thread.start();
+                /*
                 while ( thread.isAlive() )
                 {
                     Log.d( TAG, "thread.id=" + thread.getId() + ",state=" + thread.getState() );
@@ -653,15 +654,18 @@ public class ExceptionHandlerTestApp extends Activity
                     }
 
                 }
+                */
 
+                /*
                 try
                 {
-                    thread.join();
+                    thread.join(); // must call. leak handle...
                 }
                 catch ( InterruptedException e )
                 {
                     Log.d( TAG, "got Exception", e );
                 }
+                */
             }
         } );
         layout.addView( btn7 );
