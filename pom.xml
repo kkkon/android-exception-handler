@@ -7,7 +7,7 @@
 
     <groupId>jp.ne.sakura.kkkon.android.exceptionhandler</groupId>
     <artifactId>android-exception-handler-pom</artifactId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6</version>
     <packaging>pom</packaging>
 
     <name>Android Exception Handler POM</name>
@@ -30,7 +30,7 @@
     <connection>scm:git:https://github.com/kkkon/android-exception-handler.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/kkkon/android-exception-handler.git</developerConnection>
     <url>https://github.com/kkkon/android-exception-handler</url>
-    <tag>HEAD</tag>
+    <tag>android-exception-handler-pom-0.6</tag>
   </scm>
 
   <developers>
