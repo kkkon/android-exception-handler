@@ -410,6 +410,12 @@ public class ExceptionHandler
                         outputStream.write( "\n".getBytes() );
                         outputStream.write( versionName.getBytes() );
                         outputStream.write( "\n".getBytes() );
+                        {
+                            final long epochtime = System.currentTimeMillis();
+                            final String value = Long.valueOf(epochtime).toString();
+                            outputStream.write( value.getBytes() );
+                            outputStream.write( "\n".getBytes() );
+                        }
 
                         final String str = Log.getStackTraceString( exception );
                         outputStream.write( str.getBytes() );
