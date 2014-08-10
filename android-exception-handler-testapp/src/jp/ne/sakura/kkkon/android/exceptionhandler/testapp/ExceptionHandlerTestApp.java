@@ -30,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -63,6 +64,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 
 /**
  *
@@ -669,6 +671,52 @@ public class ExceptionHandlerTestApp extends Activity
             }
         } );
         layout.addView( btn7 );
+
+        Button btn8 = new Button( this );
+        btn8.setText( "upload http AsyncTask" );
+        btn8.setOnClickListener( new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view)
+            {
+                AsyncTask<String,Void,Boolean>   asyncTask = new AsyncTask<String,Void,Boolean>() {
+
+                    @Override
+                    protected Boolean doInBackground(String... paramss) {
+                        Boolean result = true;
+                        Log.d( TAG, "upload AsyncTask tid=" + android.os.Process.myTid() );
+                        try
+                        {
+                            //$(BRAND)/$(PRODUCT)/$(DEVICE)/$(BOARD):$(VERSION.RELEASE)/$(ID)/$(VERSION.INCREMENTAL):$(TYPE)/$(TAGS)
+                            Log.d( TAG, "fng=" + Build.FINGERPRINT );
+                            final List<NameValuePair> list = new ArrayList<NameValuePair>(16);
+                            list.add( new BasicNameValuePair( "fng", Build.FINGERPRINT ) );
+
+                            HttpPost    httpPost = new HttpPost( paramss[0] );
+                            httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
+                            DefaultHttpClient   httpClient = new DefaultHttpClient();
+                            // <uses-permission android:name="android.permission.INTERNET"/>
+                            // got android.os.NetworkOnMainThreadException, run at UI Main Thread
+                            HttpResponse response = httpClient.execute( httpPost );
+                            Log.d( TAG, "response=" + response.getStatusLine().getStatusCode() );
+                        }
+                        catch ( Exception e )
+                        {
+                            Log.d( TAG, "got Exception. msg=" + e.getMessage(), e );
+                            result = false;
+                        }
+                        Log.d( TAG, "upload finish" );
+                        return result;
+                    }
+
+
+                };
+
+                asyncTask.execute("http://kkkon.sakura.ne.jp/android/bug");
+                asyncTask.isCancelled();
+            }
+        } );
+        layout.addView( btn8 );
 
         setContentView( layout );
     }
