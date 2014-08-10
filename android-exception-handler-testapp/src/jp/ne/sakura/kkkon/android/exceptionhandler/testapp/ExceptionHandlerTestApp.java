@@ -63,8 +63,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 
 /**
  *
@@ -572,8 +572,15 @@ public class ExceptionHandlerTestApp extends Activity
                         try
                         {
                             HttpPost    httpPost = new HttpPost( "http://kkkon.sakura.ne.jp/android/bug" );
+                            //httpPost.getParams().setParameter( CoreConnectionPNames.SO_TIMEOUT, new Integer(5*1000) );
                             httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
                             DefaultHttpClient   httpClient = new DefaultHttpClient();
+                            Log.d( TAG, "socket.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.SO_TIMEOUT, -1) );
+                            Log.d( TAG, "connection.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, -1) );
+                            httpClient.getParams().setParameter( CoreConnectionPNames.SO_TIMEOUT, new Integer(5*1000) );
+                            httpClient.getParams().setParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, new Integer(5*1000) );
+                            Log.d( TAG, "socket.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.SO_TIMEOUT, -1) );
+                            Log.d( TAG, "connection.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, -1) );
                             // <uses-permission android:name="android.permission.INTERNET"/>
                             // got android.os.NetworkOnMainThreadException, run at UI Main Thread
                             HttpResponse response = httpClient.execute( httpPost );
@@ -581,7 +588,7 @@ public class ExceptionHandlerTestApp extends Activity
                         }
                         catch ( Exception e )
                         {
-                            Log.d( TAG, "got Exception", e );
+                            Log.d( TAG, "got Exception. msg=" + e.getMessage(), e );
                         }
                         Log.d( TAG, "upload finish" );
                     }
@@ -693,8 +700,15 @@ public class ExceptionHandlerTestApp extends Activity
                             list.add( new BasicNameValuePair( "fng", Build.FINGERPRINT ) );
 
                             HttpPost    httpPost = new HttpPost( paramss[0] );
+                            //httpPost.getParams().setParameter( CoreConnectionPNames.SO_TIMEOUT, new Integer(5*1000) );
                             httpPost.setEntity( new UrlEncodedFormEntity( list, HTTP.UTF_8 ) );
                             DefaultHttpClient   httpClient = new DefaultHttpClient();
+                            Log.d( TAG, "socket.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.SO_TIMEOUT, -1) );
+                            Log.d( TAG, "connection.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, -1) );
+                            httpClient.getParams().setParameter( CoreConnectionPNames.SO_TIMEOUT, new Integer(5*1000) );
+                            httpClient.getParams().setParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, new Integer(5*1000) );
+                            Log.d( TAG, "socket.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.SO_TIMEOUT, -1) );
+                            Log.d( TAG, "connection.timeout=" + httpClient.getParams().getIntParameter( CoreConnectionPNames.CONNECTION_TIMEOUT, -1) );
                             // <uses-permission android:name="android.permission.INTERNET"/>
                             // got android.os.NetworkOnMainThreadException, run at UI Main Thread
                             HttpResponse response = httpClient.execute( httpPost );
