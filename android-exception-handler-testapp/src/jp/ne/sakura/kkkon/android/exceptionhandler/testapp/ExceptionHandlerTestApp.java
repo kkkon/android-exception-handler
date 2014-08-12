@@ -60,6 +60,7 @@ import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderMailClient;
 import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderWeb;
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
 import jp.ne.sakura.kkkon.android.exceptionhandler.SettingsCompat;
+import jp.ne.sakura.kkkon.android.exceptionhandler.ZipEntryFilter;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;

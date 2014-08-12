@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jp.ne.sakura.kkkon.android.exceptionhandler.testapp;
+package jp.ne.sakura.kkkon.android.exceptionhandler;
 
 import java.util.zip.ZipEntry;
 
