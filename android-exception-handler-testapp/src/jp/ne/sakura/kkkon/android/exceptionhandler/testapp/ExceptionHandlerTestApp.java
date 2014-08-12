@@ -561,6 +561,75 @@ public class ExceptionHandlerTestApp extends Activity
                 thread.setName( "check jni so" );
 
                 thread.start();
+                /*
+                while ( thread.isAlive() )
+                {
+                    Log.d( TAG, "check thread.id=" + android.os.Process.myTid() + ",state=" + thread.getState() );
+                    if ( ! thread.isAlive() )
+                    {
+                        break;
+                    }
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder( ExceptionHandlerTestApp.this );
+                    final Locale defaultLocale = Locale.getDefault();
+
+                    String title = "";
+                    String message = "";
+                    String positive = "";
+                    String negative = "";
+
+                    boolean needDefaultLang = true;
+                    if ( null != defaultLocale )
+                    {
+                        if ( defaultLocale.equals( Locale.JAPANESE ) || defaultLocale.equals( Locale.JAPAN ) )
+                        {
+                            title = "情報";
+                            message = "インストール状態をチェック中です。キャンセルしますか？";
+                            positive = "待つ";
+                            negative = "キャンセル";
+                            needDefaultLang = false;
+                        }
+                    }
+                    if ( needDefaultLang )
+                    {
+                        title = "INFO";
+                        message = "Now checking installation. Cancel check?";
+                        positive = "Wait";
+                        negative = "Cancel";
+                    }
+                    alertDialog.setTitle( title );
+                    alertDialog.setMessage( message );
+                    alertDialog.setPositiveButton( positive, null);
+                    alertDialog.setNegativeButton( negative, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface di, int i) {
+                            if ( thread.isAlive() )
+                            {
+                                Log.d( TAG, "request interrupt" );
+                                thread.interrupt();
+                            }
+                            else
+                            {
+                                // nothing
+                            }
+                        }
+                    } );
+
+                    if ( ! thread.isAlive() )
+                    {
+                        break;
+                    }
+
+                    alertDialog.show();
+
+                    if ( ! Thread.State.RUNNABLE.equals(thread.getState()) )
+                    {
+                        break;
+                    }
+
+                }
+                */
+
                 try
                 {
                     thread.join();
@@ -815,7 +884,7 @@ public class ExceptionHandlerTestApp extends Activity
                 /*
                 while ( thread.isAlive() )
                 {
-                    Log.d( TAG, "thread.id=" + thread.getId() + ",state=" + thread.getState() );
+                    Log.d( TAG, "thread tid=" + android.os.Process.myTid() + ",state=" + thread.getState() );
                     if ( ! thread.isAlive() )
                     {
                         break;
