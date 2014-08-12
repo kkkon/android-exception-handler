@@ -46,6 +46,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -343,7 +344,7 @@ public class ExceptionHandlerTestApp extends Activity
         btn3.setOnClickListener( new View.OnClickListener() {
             private boolean checkApk( final File fileApk, ZipEntryFilter filter )
             {
-                boolean result = false;
+                boolean result = true;
 
                 if ( fileApk.exists() )
                 {
@@ -356,12 +357,186 @@ public class ExceptionHandlerTestApp extends Activity
                         {
                             ZipEntry ent = e.nextElement();
                             Log.d( TAG, ent.getName() );
+                            Log.d( TAG, "" + ent.getSize() );
                             final boolean accept = filter.accept( ent );
                             if ( accept )
                             {
                                 list.add( ent );
                             }
                         }
+
+                        Log.d( TAG, Build.CPU_ABI );    // API 4
+                        Log.d( TAG, Build.CPU_ABI2 );   // API 8
+
+                        final String[] abiArray = {
+                            Build.CPU_ABI       // API 4
+                            , Build.CPU_ABI2    // API 8
+                        };
+
+                        String abiMatched = null;
+                        {
+                            boolean foundMatched = false;
+                            for ( final String abi : abiArray )
+                            {
+                                if ( null == abi )
+                                {
+                                    continue;
+                                }
+                                if ( 0 == abi.length() )
+                                {
+                                    continue;
+                                }
+
+                                for ( final ZipEntry entry : list )
+                                {
+                                    Log.d( TAG, entry.getName() );
+
+                                    final String prefixABI = "lib/" + abi + "/";
+                                    if ( entry.getName().startsWith( prefixABI ) )
+                                    {
+                                        abiMatched = abi;
+                                        foundMatched = true;
+                                        break;
+                                    }
+                                }
+
+                                if ( foundMatched )
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        Log.d( TAG, "matchedAbi=" + abiMatched );
+
+                        if ( null != abiMatched )
+                        {
+                            boolean needReInstall = false;
+
+                            for ( final ZipEntry entry : list )
+                            {
+                                Log.d( TAG, entry.getName() );
+
+                                final String prefixABI = "lib/" + abiMatched + "/";
+                                if ( entry.getName().startsWith( prefixABI ) )
+                                {
+                                    final String jniName = entry.getName().substring( prefixABI.length() );
+                                    Log.d( TAG, "jni=" + jniName );
+
+                                    final String strFileDst = context.getApplicationInfo().nativeLibraryDir + "/" + jniName;
+                                    Log.d( TAG, strFileDst );
+                                    final File fileDst = new File( strFileDst );
+                                    if ( ! fileDst.exists() )
+                                    {
+                                        Log.w( TAG, "needReInstall: content missing " + strFileDst );
+                                        needReInstall = true;
+                                    }
+                                    else
+                                    {
+                                        assert( entry.getSize() <= Integer.MAX_VALUE );
+                                        if ( fileDst.length() != entry.getSize() )
+                                        {
+                                            Log.w( TAG, "needReInstall: size broken " + strFileDst );
+                                            needReInstall = true;
+                                        }
+                                        else
+                                        {
+                                            //org.apache.commons.io.IOUtils.contentEquals( zipFile.getInputStream( entry ), new FileInputStream(fileDst) );
+
+                                            final int size = (int)entry.getSize();
+                                            byte[] buffSrc = new byte[size];
+
+                                            {
+                                                InputStream inStream = null;
+                                                try
+                                                {
+                                                    inStream = zipFile.getInputStream( entry );
+                                                    int pos = 0;
+                                                    {
+                                                        while( pos < size )
+                                                        {
+                                                            final int ret = inStream.read( buffSrc, pos, size - pos );
+                                                            if ( ret <= 0 )
+                                                            {
+                                                                break;
+                                                            }
+                                                            pos += ret;
+                                                        }
+                                                    }
+                                                }
+                                                catch ( IOException e )
+                                                {
+                                                    Log.d( TAG, "got exception", e );
+                                                }
+                                                finally
+                                                {
+                                                    if ( null != inStream )
+                                                    {
+                                                        try { inStream.close(); } catch ( Exception e ) { }
+                                                    }
+                                                }
+                                            }
+                                            byte[] buffDst = new byte[(int)fileDst.length()];
+                                            {
+                                                InputStream inStream = null;
+                                                try
+                                                {
+                                                    inStream = new FileInputStream( fileDst );
+                                                    int pos = 0;
+                                                    {
+                                                        while( pos < size )
+                                                        {
+                                                            final int ret = inStream.read( buffDst, pos, size - pos );
+                                                            if ( ret <= 0 )
+                                                            {
+                                                                break;
+                                                            }
+                                                            pos += ret;
+                                                        }
+                                                    }
+                                                }
+                                                catch ( IOException e )
+                                                {
+                                                    Log.d( TAG, "got exception", e );
+                                                }
+                                                finally
+                                                {
+                                                    if ( null != inStream )
+                                                    {
+                                                        try { inStream.close(); } catch ( Exception e ) { }
+                                                    }
+                                                }
+                                            }
+
+                                            if( Arrays.equals( buffSrc, buffDst ) )
+                                            {
+                                                Log.d( TAG, " content equal " + strFileDst );
+                                                // OK
+                                            }
+                                            else
+                                            {
+                                                Log.w( TAG, "needReInstall: content broken " + strFileDst );
+                                                needReInstall = true;
+                                            }
+                                        }
+
+                                    }
+
+                                }
+                            } // for ZipEntry
+
+                            if ( needReInstall )
+                            {
+                                // need call INSTALL APK
+                                Log.w( TAG, "needReInstall apk" );
+                                result = false;
+                            }
+                            else
+                            {
+                                Log.d( TAG, "no need ReInstall apk" );
+                            }
+                        }
+
+
                     }
                     catch ( IOException e )
                     {
