@@ -56,6 +56,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultCheckerAPK;
 import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderMailClient;
 import jp.ne.sakura.kkkon.android.exceptionhandler.DefaultUploaderWeb;
 import jp.ne.sakura.kkkon.android.exceptionhandler.ExceptionHandler;
@@ -251,6 +252,8 @@ public class ExceptionHandlerTestApp extends Activity
                     } );
                     alertDialog.show();
                 }
+                // TODO separate activity for crash report
+                DefaultCheckerAPK.checkAPK( this, null );
             }
             ExceptionHandler.registHandler();
         }
