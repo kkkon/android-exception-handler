@@ -93,6 +93,57 @@ public class DefaultUploaderWeb
         }
     }
 
+    public static AlertDialog.Builder setupAlertDialog( final Context context )
+    {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder( context );
+        final Locale defaultLocale = Locale.getDefault();
+
+        String title = "";
+        String message = "";
+        String positive = "";
+        String negative = "";
+
+        boolean needDefaultLang = true;
+        if ( null != defaultLocale )
+        {
+            if ( defaultLocale.equals( Locale.JAPANESE ) || defaultLocale.equals( Locale.JAPAN ) )
+            {
+                title = "情報";
+                message = "エラー送信中です。キャンセルしますか？";
+                positive = "待つ";
+                negative = "キャンセル";
+                needDefaultLang = false;
+            }
+        }
+        if ( needDefaultLang )
+        {
+            title = "INFO";
+            message = "Now uploading error information. Cancel upload?";
+            positive = "Wait";
+            negative = "Cancel";
+        }
+        alertDialog.setTitle( title );
+        alertDialog.setMessage( message );
+        alertDialog.setPositiveButton( positive, null);
+        alertDialog.setNegativeButton( negative, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface di, int i) {
+                if ( thread.isAlive() )
+                {
+                    Log.d( TAG, "request interrupt" );
+                    thread.interrupt();
+                }
+                else
+                {
+                    // nothing
+                }
+            }
+        } );
+
+        return alertDialog;
+    }
+
     public static void upload( final Context context, final File file, final String url )
     {
         terminate();
@@ -140,6 +191,9 @@ public class DefaultUploaderWeb
         thread.start();
         if ( USE_DIALOG )
         {
+            final AlertDialog.Builder alertDialogBuilder = setupAlertDialog( context );
+            final AlertDialog alertDialog = (null==alertDialogBuilder)?(null):(alertDialogBuilder.show());
+
             while ( thread.isAlive() )
             {
                 Log.d( TAG, "thread tid=" + android.os.Process.myTid() + ",state=" + thread.getState() );
@@ -147,64 +201,43 @@ public class DefaultUploaderWeb
                 {
                     break;
                 }
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder( context );
-                final Locale defaultLocale = Locale.getDefault();
 
-                String title = "";
-                String message = "";
-                String positive = "";
-                String negative = "";
-
-                boolean needDefaultLang = true;
-                if ( null != defaultLocale )
                 {
-                    if ( defaultLocale.equals( Locale.JAPANESE ) || defaultLocale.equals( Locale.JAPAN ) )
+                    try
                     {
-                        title = "情報";
-                        message = "エラー送信中です。キャンセルしますか？";
-                        positive = "待つ";
-                        negative = "キャンセル";
-                        needDefaultLang = false;
+                        Thread.sleep( 1 * 1000 );
+                    }
+                    catch ( InterruptedException e )
+                    {
+                        Log.d( TAG, "got exception", e );
                     }
                 }
-                if ( needDefaultLang )
-                {
-                    title = "INFO";
-                    message = "Now uploading error information. Cancel upload?";
-                    positive = "Wait";
-                    negative = "Cancel";
-                }
-                alertDialog.setTitle( title );
-                alertDialog.setMessage( message );
-                alertDialog.setPositiveButton( positive, null);
-                alertDialog.setNegativeButton( negative, new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface di, int i) {
-                        if ( thread.isAlive() )
-                        {
-                            Log.d( TAG, "request interrupt" );
-                            thread.interrupt();
-                        }
-                        else
-                        {
-                            // nothing
-                        }
+                if ( null != alertDialog )
+                {
+                    if ( alertDialog.isShowing() )
+                    {
                     }
-                } );
-
-                if ( ! thread.isAlive() )
-                {
-                    break;
+                    else
+                    {
+                        if ( ! thread.isAlive() )
+                        {
+                            break;
+                        }
+                        alertDialog.show();
+                    }
                 }
-
-                alertDialog.show();
 
                 if ( ! Thread.State.RUNNABLE.equals(thread.getState()) )
                 {
                     break;
                 }
 
+            }
+
+            if ( null != alertDialog )
+            {
+                alertDialog.dismiss();
             }
 
             try
