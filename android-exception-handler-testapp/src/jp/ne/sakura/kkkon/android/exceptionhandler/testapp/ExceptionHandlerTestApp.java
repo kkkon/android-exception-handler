@@ -342,216 +342,235 @@ public class ExceptionHandlerTestApp extends Activity
         Button btn3 = new Button( this );
         btn3.setText( "check apk" );
         btn3.setOnClickListener( new View.OnClickListener() {
-            private boolean checkApk( final File fileApk, ZipEntryFilter filter )
+            private boolean checkApk( final File fileApk, final ZipEntryFilter filter )
             {
-                boolean result = true;
+                final boolean[] result = new boolean[1];
+                result[0] = true;
 
-                if ( fileApk.exists() )
-                {
-                    ZipFile zipFile = null;
-                    try
-                    {
-                        zipFile = new ZipFile( fileApk );
-                        List<ZipEntry> list = new ArrayList<ZipEntry>( zipFile.size() );
-                        for ( Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); )
+                final Thread thread = new Thread( new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if ( fileApk.exists() )
                         {
-                            ZipEntry ent = e.nextElement();
-                            Log.d( TAG, ent.getName() );
-                            Log.d( TAG, "" + ent.getSize() );
-                            final boolean accept = filter.accept( ent );
-                            if ( accept )
+                            ZipFile zipFile = null;
+                            try
                             {
-                                list.add( ent );
-                            }
-                        }
-
-                        Log.d( TAG, Build.CPU_ABI );    // API 4
-                        Log.d( TAG, Build.CPU_ABI2 );   // API 8
-
-                        final String[] abiArray = {
-                            Build.CPU_ABI       // API 4
-                            , Build.CPU_ABI2    // API 8
-                        };
-
-                        String abiMatched = null;
-                        {
-                            boolean foundMatched = false;
-                            for ( final String abi : abiArray )
-                            {
-                                if ( null == abi )
+                                zipFile = new ZipFile( fileApk );
+                                List<ZipEntry> list = new ArrayList<ZipEntry>( zipFile.size() );
+                                for ( Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); )
                                 {
-                                    continue;
-                                }
-                                if ( 0 == abi.length() )
-                                {
-                                    continue;
-                                }
-
-                                for ( final ZipEntry entry : list )
-                                {
-                                    Log.d( TAG, entry.getName() );
-
-                                    final String prefixABI = "lib/" + abi + "/";
-                                    if ( entry.getName().startsWith( prefixABI ) )
+                                    ZipEntry ent = e.nextElement();
+                                    Log.d( TAG, ent.getName() );
+                                    Log.d( TAG, "" + ent.getSize() );
+                                    final boolean accept = filter.accept( ent );
+                                    if ( accept )
                                     {
-                                        abiMatched = abi;
-                                        foundMatched = true;
-                                        break;
+                                        list.add( ent );
                                     }
                                 }
 
-                                if ( foundMatched )
+                                Log.d( TAG, Build.CPU_ABI );    // API 4
+                                Log.d( TAG, Build.CPU_ABI2 );   // API 8
+
+                                final String[] abiArray = {
+                                    Build.CPU_ABI       // API 4
+                                    , Build.CPU_ABI2    // API 8
+                                };
+
+                                String abiMatched = null;
                                 {
-                                    break;
-                                }
-                            }
-                        }
-                        Log.d( TAG, "matchedAbi=" + abiMatched );
-
-                        if ( null != abiMatched )
-                        {
-                            boolean needReInstall = false;
-
-                            for ( final ZipEntry entry : list )
-                            {
-                                Log.d( TAG, entry.getName() );
-
-                                final String prefixABI = "lib/" + abiMatched + "/";
-                                if ( entry.getName().startsWith( prefixABI ) )
-                                {
-                                    final String jniName = entry.getName().substring( prefixABI.length() );
-                                    Log.d( TAG, "jni=" + jniName );
-
-                                    final String strFileDst = context.getApplicationInfo().nativeLibraryDir + "/" + jniName;
-                                    Log.d( TAG, strFileDst );
-                                    final File fileDst = new File( strFileDst );
-                                    if ( ! fileDst.exists() )
+                                    boolean foundMatched = false;
+                                    for ( final String abi : abiArray )
                                     {
-                                        Log.w( TAG, "needReInstall: content missing " + strFileDst );
-                                        needReInstall = true;
-                                    }
-                                    else
-                                    {
-                                        assert( entry.getSize() <= Integer.MAX_VALUE );
-                                        if ( fileDst.length() != entry.getSize() )
+                                        if ( null == abi )
                                         {
-                                            Log.w( TAG, "needReInstall: size broken " + strFileDst );
-                                            needReInstall = true;
+                                            continue;
                                         }
-                                        else
+                                        if ( 0 == abi.length() )
                                         {
-                                            //org.apache.commons.io.IOUtils.contentEquals( zipFile.getInputStream( entry ), new FileInputStream(fileDst) );
+                                            continue;
+                                        }
 
-                                            final int size = (int)entry.getSize();
-                                            byte[] buffSrc = new byte[size];
+                                        for ( final ZipEntry entry : list )
+                                        {
+                                            Log.d( TAG, entry.getName() );
 
+                                            final String prefixABI = "lib/" + abi + "/";
+                                            if ( entry.getName().startsWith( prefixABI ) )
                                             {
-                                                InputStream inStream = null;
-                                                try
-                                                {
-                                                    inStream = zipFile.getInputStream( entry );
-                                                    int pos = 0;
-                                                    {
-                                                        while( pos < size )
-                                                        {
-                                                            final int ret = inStream.read( buffSrc, pos, size - pos );
-                                                            if ( ret <= 0 )
-                                                            {
-                                                                break;
-                                                            }
-                                                            pos += ret;
-                                                        }
-                                                    }
-                                                }
-                                                catch ( IOException e )
-                                                {
-                                                    Log.d( TAG, "got exception", e );
-                                                }
-                                                finally
-                                                {
-                                                    if ( null != inStream )
-                                                    {
-                                                        try { inStream.close(); } catch ( Exception e ) { }
-                                                    }
-                                                }
+                                                abiMatched = abi;
+                                                foundMatched = true;
+                                                break;
                                             }
-                                            byte[] buffDst = new byte[(int)fileDst.length()];
-                                            {
-                                                InputStream inStream = null;
-                                                try
-                                                {
-                                                    inStream = new FileInputStream( fileDst );
-                                                    int pos = 0;
-                                                    {
-                                                        while( pos < size )
-                                                        {
-                                                            final int ret = inStream.read( buffDst, pos, size - pos );
-                                                            if ( ret <= 0 )
-                                                            {
-                                                                break;
-                                                            }
-                                                            pos += ret;
-                                                        }
-                                                    }
-                                                }
-                                                catch ( IOException e )
-                                                {
-                                                    Log.d( TAG, "got exception", e );
-                                                }
-                                                finally
-                                                {
-                                                    if ( null != inStream )
-                                                    {
-                                                        try { inStream.close(); } catch ( Exception e ) { }
-                                                    }
-                                                }
-                                            }
+                                        }
 
-                                            if( Arrays.equals( buffSrc, buffDst ) )
+                                        if ( foundMatched )
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                Log.d( TAG, "matchedAbi=" + abiMatched );
+
+                                if ( null != abiMatched )
+                                {
+                                    boolean needReInstall = false;
+
+                                    for ( final ZipEntry entry : list )
+                                    {
+                                        Log.d( TAG, entry.getName() );
+
+                                        final String prefixABI = "lib/" + abiMatched + "/";
+                                        if ( entry.getName().startsWith( prefixABI ) )
+                                        {
+                                            final String jniName = entry.getName().substring( prefixABI.length() );
+                                            Log.d( TAG, "jni=" + jniName );
+
+                                            final String strFileDst = context.getApplicationInfo().nativeLibraryDir + "/" + jniName;
+                                            Log.d( TAG, strFileDst );
+                                            final File fileDst = new File( strFileDst );
+                                            if ( ! fileDst.exists() )
                                             {
-                                                Log.d( TAG, " content equal " + strFileDst );
-                                                // OK
+                                                Log.w( TAG, "needReInstall: content missing " + strFileDst );
+                                                needReInstall = true;
                                             }
                                             else
                                             {
-                                                Log.w( TAG, "needReInstall: content broken " + strFileDst );
-                                                needReInstall = true;
+                                                assert( entry.getSize() <= Integer.MAX_VALUE );
+                                                if ( fileDst.length() != entry.getSize() )
+                                                {
+                                                    Log.w( TAG, "needReInstall: size broken " + strFileDst );
+                                                    needReInstall = true;
+                                                }
+                                                else
+                                                {
+                                                    //org.apache.commons.io.IOUtils.contentEquals( zipFile.getInputStream( entry ), new FileInputStream(fileDst) );
+
+                                                    final int size = (int)entry.getSize();
+                                                    byte[] buffSrc = new byte[size];
+
+                                                    {
+                                                        InputStream inStream = null;
+                                                        try
+                                                        {
+                                                            inStream = zipFile.getInputStream( entry );
+                                                            int pos = 0;
+                                                            {
+                                                                while( pos < size )
+                                                                {
+                                                                    final int ret = inStream.read( buffSrc, pos, size - pos );
+                                                                    if ( ret <= 0 )
+                                                                    {
+                                                                        break;
+                                                                    }
+                                                                    pos += ret;
+                                                                }
+                                                            }
+                                                        }
+                                                        catch ( IOException e )
+                                                        {
+                                                            Log.d( TAG, "got exception", e );
+                                                        }
+                                                        finally
+                                                        {
+                                                            if ( null != inStream )
+                                                            {
+                                                                try { inStream.close(); } catch ( Exception e ) { }
+                                                            }
+                                                        }
+                                                    }
+                                                    byte[] buffDst = new byte[(int)fileDst.length()];
+                                                    {
+                                                        InputStream inStream = null;
+                                                        try
+                                                        {
+                                                            inStream = new FileInputStream( fileDst );
+                                                            int pos = 0;
+                                                            {
+                                                                while( pos < size )
+                                                                {
+                                                                    final int ret = inStream.read( buffDst, pos, size - pos );
+                                                                    if ( ret <= 0 )
+                                                                    {
+                                                                        break;
+                                                                    }
+                                                                    pos += ret;
+                                                                }
+                                                            }
+                                                        }
+                                                        catch ( IOException e )
+                                                        {
+                                                            Log.d( TAG, "got exception", e );
+                                                        }
+                                                        finally
+                                                        {
+                                                            if ( null != inStream )
+                                                            {
+                                                                try { inStream.close(); } catch ( Exception e ) { }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if( Arrays.equals( buffSrc, buffDst ) )
+                                                    {
+                                                        Log.d( TAG, " content equal " + strFileDst );
+                                                        // OK
+                                                    }
+                                                    else
+                                                    {
+                                                        Log.w( TAG, "needReInstall: content broken " + strFileDst );
+                                                        needReInstall = true;
+                                                    }
+                                                }
+
                                             }
+
                                         }
+                                    } // for ZipEntry
 
+                                    if ( needReInstall )
+                                    {
+                                        // need call INSTALL APK
+                                        Log.w( TAG, "needReInstall apk" );
+                                        result[0] = false;
                                     }
-
+                                    else
+                                    {
+                                        Log.d( TAG, "no need ReInstall apk" );
+                                    }
                                 }
-                            } // for ZipEntry
 
-                            if ( needReInstall )
-                            {
-                                // need call INSTALL APK
-                                Log.w( TAG, "needReInstall apk" );
-                                result = false;
+
                             }
-                            else
+                            catch ( IOException e )
                             {
-                                Log.d( TAG, "no need ReInstall apk" );
+                                Log.d( TAG, "got exception", e );
+                            }
+                            finally
+                            {
+                                if ( null != zipFile )
+                                {
+                                    try { zipFile.close(); } catch ( Exception e ) { }
+                                }
                             }
                         }
+                    }
 
+                });
+                thread.setName( "check jni so" );
 
-                    }
-                    catch ( IOException e )
-                    {
-                        Log.d( TAG, "got exception", e );
-                    }
-                    finally
-                    {
-                        if ( null != zipFile )
-                        {
-                            try { zipFile.close(); } catch ( Exception e ) { }
-                        }
-                    }
+                thread.start();
+                try
+                {
+                    thread.join();
+                }
+                catch ( InterruptedException e )
+                {
+                    Log.d( TAG, "got exception", e );
                 }
 
-                return result;
+                return result[0];
             }
 
             @Override
