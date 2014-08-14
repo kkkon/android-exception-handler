@@ -24,6 +24,7 @@
 package jp.ne.sakura.kkkon.android.exceptionhandler.testapp;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,7 +55,14 @@ public class ExceptionHandlerTestApp extends Activity
             if ( ExceptionHandler.needReport() )
             {
                 Intent reportIntent = new Intent( context, ExceptionHandlerReportApp.class );
-                this.startActivity( reportIntent );
+                try
+                {
+                    this.startActivity( reportIntent );
+                }
+                catch ( ActivityNotFoundException e )
+                {
+                    Log.d( TAG, "need add Activity\n" + "<activity android:name=\"" + ExceptionHandlerReportApp.class.getName()  + "\"/>\n" );
+                }
             }
             Log.d( TAG, "pre registHandler" );
             ExceptionHandler.registHandler();
@@ -95,7 +103,14 @@ public class ExceptionHandlerTestApp extends Activity
             public void onClick(View view)
             {
                 Intent reportIntent = new Intent( context, ExceptionHandlerReportApp.class );
-                startActivity( reportIntent );
+                try
+                {
+                    startActivity( reportIntent );
+                }
+                catch ( ActivityNotFoundException e )
+                {
+                    Log.d( TAG, "need add Activity\n" + "<activity android:name=\"" + ExceptionHandlerReportApp.class.getName()  + "\"/>\n", e );
+                }
             }
         } );
         layout.addView( btn2 );
