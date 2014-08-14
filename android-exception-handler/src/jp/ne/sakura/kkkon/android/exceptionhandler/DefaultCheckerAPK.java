@@ -96,7 +96,7 @@ public class DefaultCheckerAPK
 
     private static AlertDialog.Builder setupAlertDialog( final Context context )
     {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder( context );
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder( context );
         final Locale defaultLocale = Locale.getDefault();
 
         String title = "";
@@ -125,22 +125,44 @@ public class DefaultCheckerAPK
         }
         alertDialog.setTitle( title );
         alertDialog.setMessage( message );
-        alertDialog.setPositiveButton( positive, null);
+        alertDialog.setPositiveButton( positive, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface di, int i) {
+                if ( null != thread )
+                {
+                    if ( thread.isAlive() )
+                    {
+                        alertDialog.show();
+                    }
+                    else
+                    {
+                        terminate();
+                    }
+                }
+            }
+        });
+
         alertDialog.setNegativeButton( negative, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface di, int i) {
-                if ( thread.isAlive() )
+                if ( null != thread )
                 {
-                    Log.d( TAG, "request interrupt" );
-                    thread.interrupt();
-                }
-                else
-                {
-                    // nothing
+                    if ( thread.isAlive() )
+                    {
+                        Log.d( TAG, "request interrupt" );
+                        terminate();
+                    }
+                    else
+                    {
+                        terminate();
+                    }
                 }
             }
         } );
+
+        alertDialog.setCancelable( false );
 
         return alertDialog;
     }
@@ -398,53 +420,60 @@ public class DefaultCheckerAPK
         if ( USE_DIALOG )
         {
             final AlertDialog.Builder alertDialogBuilder = setupAlertDialog( context );
-            AlertDialog alertDialog = (null==alertDialogBuilder)?(null):(alertDialogBuilder.show());
-
-            while ( thread.isAlive() )
+            if ( null != alertDialogBuilder )
             {
-                Log.d( TAG, "check thread tid=" + android.os.Process.myTid() + ",state=" + thread.getState() );
-                if ( ! thread.isAlive() )
-                {
-                    break;
-                }
+                alertDialogBuilder.setCancelable( false );
 
+                final AlertDialog alertDialog = alertDialogBuilder.show();
+
+                /*
+                while ( thread.isAlive() )
                 {
-                    try
+                    Log.d( TAG, "check thread tid=" + android.os.Process.myTid() + ",state=" + thread.getState() );
+                    if ( ! thread.isAlive() )
                     {
-                        Thread.sleep( 1 * 1000 );
+                        break;
                     }
-                    catch ( InterruptedException e )
+
                     {
-                        Log.d( TAG, "got exception", e );
+                        try
+                        {
+                            Thread.sleep( 1 * 1000 );
+                        }
+                        catch ( InterruptedException e )
+                        {
+                            Log.d( TAG, "got exception", e );
+                        }
                     }
+
+                    if ( null != alertDialog )
+                    {
+                        if ( alertDialog.isShowing() )
+                        {
+                        }
+                        else
+                        {
+                            if ( ! thread.isAlive() )
+                            {
+                                break;
+                            }
+                            alertDialog.dismiss();
+                            alertDialog = alertDialogBuilder.show();
+                        }
+                    }
+
+                    if ( Thread.State.TERMINATED.equals(thread.getState()) )
+                    {
+                        break;
+                    }
+
                 }
 
                 if ( null != alertDialog )
                 {
-                    if ( alertDialog.isShowing() )
-                    {
-                    }
-                    else
-                    {
-                        if ( ! thread.isAlive() )
-                        {
-                            break;
-                        }
-                        alertDialog.dismiss();
-                        alertDialog = alertDialogBuilder.show();
-                    }
+                    alertDialog.dismiss();
                 }
-
-                if ( Thread.State.TERMINATED.equals(thread.getState()) )
-                {
-                    break;
-                }
-
-            }
-
-            if ( null != alertDialog )
-            {
-                alertDialog.dismiss();
+                */
             }
 
             try
