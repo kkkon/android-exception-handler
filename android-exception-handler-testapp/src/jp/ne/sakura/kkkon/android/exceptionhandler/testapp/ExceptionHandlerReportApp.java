@@ -691,7 +691,15 @@ public class ExceptionHandlerReportApp extends Activity
                 }
                 {
                     final File file = context.getExternalCacheDir(); // API 8
-                    Log.d( TAG, "Ctx.ExternalCacheDir=" + file.getAbsolutePath() );
+                    if ( null == file )
+                    {
+                        // no permission
+                        Log.d( TAG, "Ctx.ExternalCacheDir=" );
+                    }
+                    else
+                    {
+                        Log.d( TAG, "Ctx.ExternalCacheDir=" + file.getAbsolutePath() );
+                    }
                 }
                 {
                     final File file = context.getFilesDir();
